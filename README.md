@@ -1,8 +1,8 @@
 # JavaMailSender (OTP Email via Gmail)
 
-This small Spring Boot app sends an OTP email (HTML template) to a user's Gmail address.
+This Spring Boot app sends an OTP email (HTML template) to a user's Gmail address for verification.
 
-What I changed
+## What was fixed
 
 - Fixed `MailController` to autowire `MailService` and generate a secure 6-digit OTP.
 - Fixed `MailService` to correctly build a MIME HTML message using Thymeleaf.
