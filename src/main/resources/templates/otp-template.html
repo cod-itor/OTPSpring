@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; padding: 20px; }
+        .email-container { max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* The Gradient Header from your screenshot */
+        .header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+
+        /* Content Styles */
+        .content { padding: 40px 30px; text-align: center; color: #555; }
+        .content h2 { color: #f093fb; font-size: 24px; margin-bottom: 10px; }
+        .content p { font-size: 14px; line-height: 1.6; color: #888; margin-bottom: 30px; }
+
+        /* The Dashed OTP Box */
+        .otp-container {
+            display: inline-block;
+            border: 2px dashed #f9a8d4;
+            border-radius: 12px;
+            padding: 15px 25px;
+            background-color: #fff5f8;
+        }
+        .otp-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f472b6;
+            letter-spacing: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="email-container">
+    <div class="header">
+        <span class="badge">OTP Verification</span>
+        <h1>Gamified Habit Tracker</h1>
+    </div>
+
+    <div class="content">
+        <h2>Your OTP Code</h2>
+        <p>Ready to level up? Enter the verification code below to verify your account and start tracking your habits.</p>
+
+        <div class="otp-container">
+            <span class="otp-code" th:text="${otpCode}">327006</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
