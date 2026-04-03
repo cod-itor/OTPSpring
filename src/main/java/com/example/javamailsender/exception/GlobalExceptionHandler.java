@@ -37,6 +37,36 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        logger.warn("User already exists: {}", e.getMessage());
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                "User Already Exists",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotVerifiedException(UserNotVerifiedException e) {
+        logger.warn("User not verified: {}", e.getMessage());
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "User Not Verified",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentialsException(InvalidCredentialsException e) {
+        logger.warn("Invalid credentials: {}", e.getMessage());
+        return buildErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid Credentials",
+                e.getMessage()
+        );
+    }
+
     @ExceptionHandler(OtpSenderException.class)
     public ResponseEntity<Map<String, Object>> handleOtpSenderException(OtpSenderException e) {
         logger.error("OTP Sender error: {}", e.getMessage(), e);

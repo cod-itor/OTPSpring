@@ -5,7 +5,9 @@ import com.example.javamailsender.exception.InvalidEmailException;
 import com.example.javamailsender.model.dto.OtpRequest;
 import com.example.javamailsender.model.dto.OtpResponse;
 import com.example.javamailsender.model.entity.OtpEntity;
+import com.example.javamailsender.model.entity.UserEntity;
 import com.example.javamailsender.repository.OtpRepository;
+import com.example.javamailsender.repository.UserRepository;
 import com.example.javamailsender.service.OtpService;
 import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
@@ -42,6 +44,9 @@ public class OtpServiceImpl implements OtpService {
 
     @Autowired
     private OtpRepository otpRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${spring.mail.username}")
     private String fromAddress;
@@ -105,6 +110,17 @@ public class OtpServiceImpl implements OtpService {
         if (otp.getOtpCode().equals(otpCode)) {
             otp.setVerified(true);
             otpRepository.save(otp);
+            
+            // Mark user as verified
+            Optional<UserEntity> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isPresent()) {
+                UserEntity user = userOptional.get();
+                user.setVerified(true);
+                user.setUpdatedAt(LocalDateTime.now());
+                userRepository.save(user);
+                logger.info("User marked as verified: {}", email);
+            }
+            
             logger.info("OTP verified successfully for: {}", email);
             return new OtpResponse(true, "OTP verified successfully");
         }
