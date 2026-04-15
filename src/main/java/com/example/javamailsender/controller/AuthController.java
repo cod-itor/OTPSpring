@@ -1,13 +1,22 @@
 package com.example.javamailsender.controller;
 
+import com.example.javamailsender.Service.AppUserService;
+import com.example.javamailsender.exception.InvalidCredentialsException;
+import com.example.javamailsender.jwt.JwtService;
 import com.example.javamailsender.model.dto.*;
+import com.example.javamailsender.model.Response.AuthResponse;
 import com.example.javamailsender.service.AuthService;
 import com.example.javamailsender.service.OtpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,14 +26,25 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "User registration, login, and email verification")
+@RequiredArgsConstructor
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+    private final OtpService otpService;
+    private final AppUserService appUserService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    @Autowired
-    private OtpService otpService;
+    private void authenticate(String email, String password) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (DisabledException e) {
+            throw new InvalidCredentialsException("USER_DISABLED");
+        } catch (BadCredentialsException e) {
+            throw new InvalidCredentialsException("INVALID_CREDENTIALS");
+        }
+    }
 
     /**
      * Register a new user
@@ -69,10 +89,19 @@ public class AuthController {
      * User must be verified before login
      */
     @PostMapping("/login")
-    @Operation(summary = "Login User", description = "Login with email and password. User must be verified with OTP first.")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    @Operation(summary = "Login User", description = "Login with email and password. User must be verified with OTP first. Returns JWT token on success.")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         logger.info("Login request for email: {}", request.getEmail());
-        LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+
+        // Keep existing OTP verification gate (must be verified=true)
+        authService.login(request);
+
+        // Authenticate against Spring Security/AppUser credentials
+        authenticate(request.getEmail(), request.getPassword());
+
+        final UserDetails userDetails = appUserService.loadUserByUsername(request.getEmail());
+        final String token = jwtService.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

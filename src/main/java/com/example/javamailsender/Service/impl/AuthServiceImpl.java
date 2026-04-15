@@ -1,8 +1,10 @@
 package com.example.javamailsender.service.impl;
 
+import com.example.javamailsender.Service.AppUserService;
 import com.example.javamailsender.exception.InvalidCredentialsException;
 import com.example.javamailsender.exception.UserAlreadyExistsException;
 import com.example.javamailsender.exception.UserNotVerifiedException;
+import com.example.javamailsender.model.Request.AppUserRequest;
 import com.example.javamailsender.model.dto.*;
 import com.example.javamailsender.model.entity.OtpEntity;
 import com.example.javamailsender.model.entity.UserEntity;
@@ -34,6 +36,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OtpRepository otpRepository;
 
+    @Autowired
+    private AppUserService appUserService;
+
     @Override
     public RegisterResponse register(RegisterRequest request) {
         logger.info("Registration request for email: {}", request.getEmail());
@@ -57,6 +62,16 @@ public class AuthServiceImpl implements AuthService {
             // Save user
             UserEntity savedUser = userRepository.save(user);
             logger.info("User registered: {} with ID: {}", request.getEmail(), savedUser.getId());
+
+        // Create security user for JWT authentication manager flow
+        AppUserRequest appUserRequest = new AppUserRequest(
+            request.getName(),
+            request.getEmail(),
+            request.getPassword(),
+            "ROLE_USER"
+        );
+        appUserService.register(appUserRequest);
+        logger.info("Security user created for email: {}", request.getEmail());
 
             // Send OTP to email automatically
             OtpRequest otpRequest = new OtpRequest(request.getEmail());
