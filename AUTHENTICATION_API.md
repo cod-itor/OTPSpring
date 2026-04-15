@@ -17,7 +17,7 @@
    ↓
 7. Login successful ✓
 ```
-hello i wrie this 
+
 ---
 
 ## API Endpoints
@@ -25,6 +25,7 @@ hello i wrie this
 ### Authentication Endpoints (`/api/v1/auth`)
 
 #### 1. Register User
+
 ```
 POST /api/v1/auth/register
 
@@ -54,6 +55,7 @@ Response (409 CONFLICT - user already exists):
 ```
 
 #### 2. Verify OTP
+
 ```
 POST /api/v1/auth/verify-otp?email=john@example.com&otpCode=527643
 
@@ -80,6 +82,7 @@ Response (200 OK - expired):
 ```
 
 #### 3. Resend OTP
+
 ```
 GET /api/v1/auth/resend-otp?email=john@example.com
 or
@@ -94,6 +97,7 @@ Response (200 OK):
 ```
 
 #### 4. Login User
+
 ```
 POST /api/v1/auth/login
 
@@ -135,6 +139,7 @@ Response (401 UNAUTHORIZED - wrong password):
 ### OTP Endpoints (`/api/v1/otp`)
 
 #### 1. Request OTP (manual)
+
 ```
 GET /api/v1/otp/request?email=john@example.com
 or
@@ -149,6 +154,7 @@ Response (200 OK):
 ```
 
 #### 2. Verify OTP
+
 ```
 POST /api/v1/otp/verify?email=john@example.com&otpCode=527643
 
@@ -165,6 +171,7 @@ Response (200 OK):
 ## Complete Registration Flow Example
 
 ### Step 1: Register User
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
@@ -176,6 +183,7 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -191,7 +199,9 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
 ---
 
 ### Step 2: Check Console Logs for OTP
+
 Console output:
+
 ```
 INFO ... Generated OTP: 527643 for email: john@example.com
 INFO ... Email sent successfully to: john@example.com
@@ -200,11 +210,13 @@ INFO ... Email sent successfully to: john@example.com
 ---
 
 ### Step 3: Verify OTP
+
 ```bash
 curl -X POST "http://localhost:8080/api/v1/auth/verify-otp?email=john@example.com&otpCode=527643"
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -218,6 +230,7 @@ curl -X POST "http://localhost:8080/api/v1/auth/verify-otp?email=john@example.co
 ---
 
 ### Step 4: Login (only works if verified)
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -228,6 +241,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -255,6 +269,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ```
 
 **Response (403 FORBIDDEN):**
+
 ```json
 {
   "success": false,
@@ -283,6 +298,7 @@ UserEntity {
 ```
 
 **Key Field: `isVerified`**
+
 - **FALSE** → User can register but cannot login
 - **TRUE** → OTP verified, user can login
 
@@ -299,12 +315,14 @@ UserEntity {
 ## Database/Storage
 
 Currently using **in-memory storage** (HashMap):
+
 - User data stored in `UserRepositoryImpl`
 - OTP data stored in `OtpRepositoryImpl`
 
 **Data will be lost when app restarts!**
 
 For production, replace with:
+
 - PostgreSQL / MySQL with JPA `@Entity`
 - Spring Data `@Repository`
 - Database migrations with Flyway/Liquibase
@@ -328,12 +346,11 @@ For production, replace with:
 
 ## Error Codes
 
-| Status | Error | Meaning |
-|--------|-------|---------|
-| 200 | Success | Operation successful |
-| 400 | Invalid Email | Email format is wrong |
-| 401 | Invalid Credentials | Wrong email/password |
-| 403 | User Not Verified | User not verified with OTP |
-| 409 | User Already Exists | Email already registered |
-| 500 | Internal Server Error | Unexpected server error |
-
+| Status | Error                 | Meaning                    |
+| ------ | --------------------- | -------------------------- |
+| 200    | Success               | Operation successful       |
+| 400    | Invalid Email         | Email format is wrong      |
+| 401    | Invalid Credentials   | Wrong email/password       |
+| 403    | User Not Verified     | User not verified with OTP |
+| 409    | User Already Exists   | Email already registered   |
+| 500    | Internal Server Error | Unexpected server error    |
